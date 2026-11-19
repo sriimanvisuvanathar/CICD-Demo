@@ -1,6 +1,4 @@
 <?php
-function greet($name) {
-    return "Welcome to our CI/CD demonstration, " . $name . "!";
-}
+require_once 'src/Greeting.php';
 echo greet("System Development Students");
 ?>
