@@ -1,0 +1,54 @@
+# Name of our CI/CD pipeline
+name: CI/CD Pipeline
+
+# Define when the pipeline should execute
+on:
+  push:
+    branches:
+      - main
+
+# Define the jobs in our pipeline
+jobs:
+
+  # JOB 1: BUILD
+  build:
+    name: Build PHP Application
+    runs-on: ubuntu-latest
+
+    steps:
+      # Download the source code from GitHub
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Install PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      # Check PHP syntax
+      - name: Validate PHP code
+        run: php -l index.php
+
+      # Display a success message
+      - name: Build completed
+        run: echo "PHP application build successful!"
+
+  # JOB 2: TEST
+  test:
+    name: Test PHP Application
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      # Execute our application as a basic test
+      - name: Run PHP application
+        run: php index.php
