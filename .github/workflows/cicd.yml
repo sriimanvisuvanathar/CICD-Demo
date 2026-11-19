@@ -1,13 +1,13 @@
-# Name of our CI/CD pipeline
-name: CI/CD Pipeline
+# Name of our pipeline
+name: PHP CI/CD Pipeline
 
-# Define when the pipeline should execute
+# Trigger pipeline whenever code is pushed to main
 on:
   push:
     branches:
       - main
 
-# Define the jobs in our pipeline
+# Pipeline jobs
 jobs:
 
   # JOB 1: BUILD
@@ -16,11 +16,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Download the source code from GitHub
+      # Get source code from GitHub
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # Install PHP
+      # Install PHP 8.3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -28,27 +28,40 @@ jobs:
 
       # Check PHP syntax
       - name: Validate PHP code
-        run: php -l index.php
+        run: |
+          php -l index.php
+          php -l src/Greeting.php
 
-      # Display a success message
       - name: Build completed
-        run: echo "PHP application build successful!"
+        run: echo "Build successful!"
 
-  # JOB 2: TEST
+  # JOB 2: AUTOMATED TESTING
   test:
-    name: Test PHP Application
+    name: Run PHPUnit Tests
     runs-on: ubuntu-latest
+
+    # Test starts only if Build succeeds
     needs: build
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      # Install PHP and Composer
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          tools: composer:v2
 
-      # Execute our application as a basic test
+      # Install project dependencies, including PHPUnit
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # Execute automated test cases
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit tests
+
+      # Execute application
       - name: Run PHP application
         run: php index.php
